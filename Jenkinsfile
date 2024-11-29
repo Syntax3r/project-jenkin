@@ -5,6 +5,10 @@ pipeline {
         GITLEAKS_REPORT = 'gitleaks-report.json'
         TRUFFLEHOG_REPORT = 'trufflehog-report.json'
     }
+    triggers {
+        githubPush()
+    }
+
 
     stages {
         stage('Checkout') {
