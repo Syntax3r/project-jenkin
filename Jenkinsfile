@@ -5,10 +5,6 @@ pipeline {
         GITLEAKS_REPORT = 'gitleaks-report.json'
         TRUFFLEHOG_REPORT = 'trufflehog-report.json'
     }
-    triggers {
-        githubPush()
-    }
-
 
     stages {
         stage('Checkout') {
@@ -21,11 +17,11 @@ pipeline {
             steps {
                 script {
                     // Initialize git-secrets and register AWS patterns
-                    sh 'git secrets --install || true'
-                    sh 'git secrets --register-aws || true'
+                    bat 'git secrets --install || echo "git-secrets already installed."'
+                    bat 'git secrets --register-aws || echo "AWS patterns already registered."'
 
                     // Run git-secrets scan
-                    sh 'git secrets --scan --recursive || echo "Potential secrets found by git-secrets."'
+                    bat 'git secrets --scan --recursive || echo "Potential secrets found by git-secrets."'
                 }
             }
         }
@@ -34,7 +30,7 @@ pipeline {
             steps {
                 script {
                     // Run Gitleaks scan and save results in JSON format
-                    sh "gitleaks detect --source . --report-format json --report-path ${GITLEAKS_REPORT} || echo 'Potential secrets found by Gitleaks.'"
+                    bat "gitleaks detect --source . --report-format json --report-path %GITLEAKS_REPORT% || echo 'Potential secrets found by Gitleaks.'"
                 }
             }
         }
@@ -43,7 +39,7 @@ pipeline {
             steps {
                 script {
                     // Run TruffleHog scan and output JSON results
-                    sh "trufflehog filesystem . --json > ${TRUFFLEHOG_REPORT} || echo 'Potential secrets found by TruffleHog.'"
+                    bat "trufflehog filesystem . --json > %TRUFFLEHOG_REPORT% || echo 'Potential secrets found by TruffleHog.'"
                 }
             }
         }
